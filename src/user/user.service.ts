@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +9,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class UserService {
   constructor(
     @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly entityManager: EntityManager,
   ) {}
 
@@ -20,9 +21,10 @@ export class UserService {
       password: hashedPassword,
     });
 
-    const savedUser = await this.entityManager.save(user);
-    delete savedUser.password;
+    return this.entityManager.save(user);
+  }
 
-    return savedUser;
+  async findByEmail(email: string) {
+    return this.userRepository.findOne({ where: { email } });
   }
 }
