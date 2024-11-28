@@ -7,10 +7,14 @@ import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async signup(signupDto: SignupDto) {
     const existingUser = await this.userService.findByEmail(signupDto.email);
@@ -47,10 +51,13 @@ export class AuthService {
 
     delete foundUser.password;
 
+    const payload = { sub: foundUser.id, email: foundUser.email };
+
     return {
       statusCode: 200,
       message: 'User signed in successfully',
       user: foundUser,
+      access_token: this.jwtService.sign(payload),
     };
   }
 }
