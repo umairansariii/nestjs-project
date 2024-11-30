@@ -24,14 +24,19 @@ export class UserService {
     return this.entityManager.save(user);
   }
 
+  async updatePassword(user: User, newPassword: string) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+
+    return this.entityManager.save(user);
+  }
+
   async findByEmail(email: string) {
     return this.userRepository.findOne({ where: { email } });
   }
 
   async findById(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    delete user.password;
-
-    return user;
+    return this.userRepository.findOne({ where: { id } });
   }
 }

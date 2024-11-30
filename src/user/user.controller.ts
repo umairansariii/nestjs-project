@@ -9,6 +9,9 @@ export class UserController {
 
   @Get()
   async findById(@Request() req: any) {
-    return this.userService.findById(req.userId);
+    const user = await this.userService.findById(req.userId);
+    delete user.password;
+
+    return user;
   }
 }

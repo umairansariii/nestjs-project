@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -8,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -58,6 +60,26 @@ export class AuthService {
       message: 'User signed in successfully',
       user: foundUser,
       access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto, userId: number) {
+    const user = await this.userService.findById(userId);
+
+    const isPasswordMatch = await bcrypt.compare(
+      changePasswordDto.oldPassword,
+      user.password,
+    );
+
+    if (!isPasswordMatch) {
+      throw new BadRequestException('Password does not match');
+    }
+
+    await this.userService.updatePassword(user, changePasswordDto.newPassword);
+
+    return {
+      statusCode: 200,
+      message: 'Password changed successfully',
     };
   }
 }
