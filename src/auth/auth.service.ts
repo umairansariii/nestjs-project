@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
@@ -39,7 +40,7 @@ export class AuthService {
     const foundUser = await this.userService.findByEmail(signinDto.email);
 
     if (!foundUser) {
-      throw new UnauthorizedException('User with this email does not exist');
+      throw new NotFoundException('User with this email does not exist');
     }
 
     const isPasswordMatch = await bcrypt.compare(
