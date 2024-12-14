@@ -12,6 +12,10 @@ export class UserController {
     const user = await this.userService.findById(req.userId);
     delete user.password;
 
-    return user;
+    return {
+      statusCode: 200,
+      message: 'User retrieved successfully',
+      user,
+    };
   }
 }
