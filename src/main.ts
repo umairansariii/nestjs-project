@@ -13,6 +13,8 @@ async function bootstrap() {
         const errorsWithProperty = errors.map((error) => ({
           property: error.property,
           message: error.constraints[Object.keys(error.constraints)[0]],
+          developerNote:
+            error.contexts?.[Object.keys(error.contexts)[0]].message,
         }));
         return new BadRequestException(errorsWithProperty);
       },
