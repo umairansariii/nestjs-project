@@ -13,6 +13,7 @@ import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,5 +37,10 @@ export class AuthController {
     @Request() req: any,
   ) {
     return this.authService.changePassword(changePasswordDto, req.userId);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto.email);
   }
 }
