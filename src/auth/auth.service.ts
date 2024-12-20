@@ -13,12 +13,16 @@ import { JwtService } from '@nestjs/jwt';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { nanoid } from 'nanoid';
 import { ResetToken } from './entities/reset-token.entity';
-import { EntityManager } from 'typeorm';
+import { EntityManager, MoreThan, Repository } from 'typeorm';
 import { MailService } from 'src/services/mail.service';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(ResetToken)
+    private readonly resetTokenRepository: Repository<ResetToken>,
     private readonly userService: UserService,
     private readonly entityManager: EntityManager,
     private readonly jwtService: JwtService,
@@ -109,6 +113,29 @@ export class AuthService {
     return {
       statusCode: 200,
       message: 'Email sent successfully',
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const foundToken = await this.resetTokenRepository.findOne({
+      where: {
+        token: resetPasswordDto.resetToken,
+        expiryDate: MoreThan(new Date()),
+      },
+    });
+
+    if (!foundToken) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    const user = await this.userService.findById(foundToken.userId);
+
+    await this.userService.updatePassword(user, resetPasswordDto.newPassword);
+    await this.resetTokenRepository.delete(foundToken.userId);
+
+    return {
+      statusCode: 200,
+      message: 'Password updated successfully',
     };
   }
 }
