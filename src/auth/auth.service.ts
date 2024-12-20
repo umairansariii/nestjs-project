@@ -11,12 +11,18 @@ import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { nanoid } from 'nanoid';
+import { ResetToken } from './entities/reset-token.entity';
+import { EntityManager } from 'typeorm';
+import { MailService } from 'src/services/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly entityManager: EntityManager,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async signup(signupDto: SignupDto) {
@@ -81,6 +87,28 @@ export class AuthService {
     return {
       statusCode: 200,
       message: 'Password changed successfully',
+    };
+  }
+
+  async forgotPassword(email: string) {
+    const foundUser = await this.userService.findByEmail(email);
+
+    if (foundUser) {
+      const resetPasswordToken = nanoid(64);
+
+      const resetToken = new ResetToken({
+        userId: foundUser.id,
+        token: resetPasswordToken,
+        expiryDate: new Date(Date.now() + 3600000),
+      });
+
+      await this.entityManager.save(resetToken);
+      this.mailService.sendPasswordResetEmail(email, resetPasswordToken);
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Email sent successfully',
     };
   }
 }
