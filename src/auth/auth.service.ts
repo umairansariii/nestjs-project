@@ -14,6 +14,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { nanoid } from 'nanoid';
 import { ResetToken } from './entities/reset-token.entity';
 import { EntityManager } from 'typeorm';
+import { MailService } from 'src/services/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly entityManager: EntityManager,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async signup(signupDto: SignupDto) {
@@ -101,6 +103,7 @@ export class AuthService {
       });
 
       await this.entityManager.save(resetToken);
+      this.mailService.sendPasswordResetEmail(email, resetPasswordToken);
     }
 
     return {
