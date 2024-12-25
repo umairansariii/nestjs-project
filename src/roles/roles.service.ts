@@ -38,4 +38,11 @@ export class RolesService {
       role: newRole,
     };
   }
+
+  /**
+   * Retrieves all roles from the repository.
+   */
+  async findAll() {
+    return this.roleRepository.find();
+  }
 }
