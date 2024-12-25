@@ -30,13 +30,8 @@ export class RolesService {
     const role = new Role({
       ...createRoleDto,
     });
-    const newRole = await this.roleRepository.save(role);
 
-    return {
-      statusCode: 201,
-      message: 'Role created successfully',
-      role: newRole,
-    };
+    return this.roleRepository.save(role);
   }
 
   /**

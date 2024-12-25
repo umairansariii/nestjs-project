@@ -19,6 +19,12 @@ export class RolesController {
 
   @Post()
   async createRole(@Body() createRoleDto: CreateRoleDto) {
-    return this.rolesService.create(createRoleDto);
+    const role = await this.rolesService.create(createRoleDto);
+
+    return {
+      statusCode: 201,
+      message: 'Role created successfully',
+      role,
+    };
   }
 }
