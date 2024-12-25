@@ -1,4 +1,12 @@
-import { IsDefined, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  ArrayUnique,
+  IsArray,
+  IsDefined,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
 import { Resource } from '../enums/resource.enum';
 import { Action } from '../enums/action.enum';
 
@@ -9,9 +17,10 @@ export class CreatePermissionDto {
   @IsDefined({ message: 'Resource is required' })
   resource: Resource;
 
-  @IsEnum(Action, { message: 'Invalid action' })
-  @IsNotEmpty({ message: 'Action should not empty' })
-  @IsString({ message: 'Action must be a string' })
-  @IsDefined({ message: 'Action is required' })
-  action: Action;
+  @ArrayUnique({ message: 'Duplicate actions not allowed' })
+  @IsEnum(Action, { each: true, message: 'Invalid actions' })
+  @ArrayNotEmpty({ message: 'Actions should not empty' })
+  @IsArray({ message: 'Actions must be an array' })
+  @IsDefined({ message: 'Actions is required' })
+  actions: Action[];
 }
