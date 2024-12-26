@@ -8,6 +8,13 @@ export class PermissionController {
 
   @Post()
   async createPermission(@Body() createPermissionDto: CreatePermissionDto) {
-    return this.permissionService.create(createPermissionDto);
+    const permissions =
+      await this.permissionService.create(createPermissionDto);
+
+    return {
+      statusCode: 201,
+      message: 'Permission created successfully',
+      permissions,
+    };
   }
 }
