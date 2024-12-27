@@ -85,4 +85,11 @@ export class PermissionService {
 
     return this.roleRepository.save(foundRole);
   }
+
+  /**
+   * Retrieves all permissions from the repository.
+   */
+  async findAll() {
+    return this.permissionRepository.find();
+  }
 }
