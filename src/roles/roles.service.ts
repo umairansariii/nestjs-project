@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
@@ -32,6 +36,22 @@ export class RolesService {
     });
 
     return this.roleRepository.save(role);
+  }
+
+  /**
+   * Retrieves role by id, including its associated permissions.
+   */
+  async findOne(id: number) {
+    const foundRole = await this.roleRepository.findOne({
+      where: { id },
+      relations: ['permissions'],
+    });
+
+    if (!foundRole) {
+      throw new NotFoundException(`Role does not exist`);
+    }
+
+    return foundRole;
   }
 
   /**

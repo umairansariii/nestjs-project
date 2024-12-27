@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 
@@ -14,6 +14,17 @@ export class RolesController {
       statusCode: 200,
       message: 'Roles retrieved successfully',
       roles,
+    };
+  }
+
+  @Get(':id')
+  async getRole(@Param('id') id: number) {
+    const role = await this.rolesService.findOne(id);
+
+    return {
+      statusCode: 200,
+      message: 'Role retrieved successfully',
+      role,
     };
   }
 
