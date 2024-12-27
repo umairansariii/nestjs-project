@@ -1,14 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { Resource } from '../enums/resource.enum';
-import { Action } from '../enums/action.enum';
-
-class Permission {
-  @Column()
-  resource: Resource;
-
-  @Column('simple-array')
-  actions: Action[];
-}
+import { Permission } from 'src/permission/entities/permission.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Role {
@@ -18,7 +15,10 @@ export class Role {
   @Column()
   name: string;
 
-  @Column(() => Permission)
+  @ManyToMany(() => Permission, (permission) => permission.roles, {
+    cascade: true,
+  })
+  @JoinTable({ name: 'role_permissions' })
   permissions: Permission[];
 
   constructor(partial: Partial<Role>) {

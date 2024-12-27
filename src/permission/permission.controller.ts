@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Put } from '@nestjs/common';
 import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
+import { AssignPermissionDto } from './dto/assign-permission.dto';
 
 @Controller('permission')
 export class PermissionController {
@@ -15,6 +16,17 @@ export class PermissionController {
       statusCode: 201,
       message: 'Permission created successfully',
       permissions,
+    };
+  }
+
+  @Put('assign')
+  async assignPermission(@Body() assignPermissionDto: AssignPermissionDto) {
+    const role = await this.permissionService.assign(assignPermissionDto);
+
+    return {
+      statusCode: 200,
+      message: 'Permission assigned successfully',
+      role,
     };
   }
 }
