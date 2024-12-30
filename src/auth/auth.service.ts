@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -30,20 +29,7 @@ export class AuthService {
   ) {}
 
   async signup(signupDto: SignupDto) {
-    const existingUser = await this.userService.findByEmail(signupDto.email);
-
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
-    }
-
-    const newUser = await this.userService.create(signupDto);
-    delete newUser.password;
-
-    return {
-      statusCode: 201,
-      message: 'User signed up successfully',
-      user: newUser,
-    };
+    return this.userService.create(signupDto);
   }
 
   async signin(signinDto: SigninDto) {

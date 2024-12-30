@@ -22,7 +22,13 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() signupDto: SignupDto) {
-    return this.authService.signup(signupDto);
+    const data = await this.authService.signup(signupDto);
+
+    return {
+      statusCode: 201,
+      message: 'User signed up successfully',
+      data,
+    };
   }
 
   @HttpCode(HttpStatus.OK)
