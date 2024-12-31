@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { EntityManager, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -75,8 +76,29 @@ export class UserService {
     return this.entityManager.save(user);
   }
 
+  /**
+   * Finds a user by email address.
+   *
+   * This function checks if a user with the specified email exists in the system,
+   * and if not, throws a `NotFoundException`.
+   *
+   * @warning This function does not remove the password from the response.
+   */
   async findByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } });
+    // CHECK: If a user with this email exists
+    const foundUser = await this.userRepository.findOne({
+      where: { email },
+      relations: ['role'],
+    });
+
+    if (!foundUser) {
+      throw new NotFoundException('User with this email does not exist');
+    }
+
+    const { role, ...user } = foundUser;
+
+    // WARNING: This function does not remove the password from the response
+    return { user, role };
   }
 
   async findById(id: number) {

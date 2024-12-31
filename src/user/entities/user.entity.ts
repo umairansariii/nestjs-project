@@ -38,6 +38,9 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column()
+  roleId: number;
+
   @ManyToOne(() => Role, (role) => role.users)
   role: Role;
 
