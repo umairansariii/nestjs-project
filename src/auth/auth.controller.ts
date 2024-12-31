@@ -34,7 +34,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('signin')
   async signin(@Body() signinDto: SigninDto) {
-    return this.authService.signin(signinDto);
+    const data = await this.authService.signin(signinDto);
+
+    return {
+      statusCode: 200,
+      message: 'User signed in successfully',
+      data,
+    };
   }
 
   @UseGuards(AuthGuard)

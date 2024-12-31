@@ -37,30 +37,30 @@ export class AuthService {
     return data;
   }
 
+  /**
+   * Authenticates a user by verifying their email and password.
+   */
   async signin(signinDto: SigninDto) {
-    const foundUser = await this.userService.findByEmail(signinDto.email);
+    const { user, role } = await this.userService.findByEmail(signinDto.email);
 
-    if (!foundUser) {
-      throw new NotFoundException('User with this email does not exist');
-    }
-
+    // CHECK: If the password with the hashed password is matched
     const isPasswordMatch = await bcrypt.compare(
       signinDto.password,
-      foundUser.password,
+      user.password,
     );
 
     if (!isPasswordMatch) {
       throw new UnauthorizedException('Incorrect password');
     }
 
-    delete foundUser.password;
+    const payload = { sub: user.id, email: user.email };
 
-    const payload = { sub: foundUser.id, email: foundUser.email };
+    // SECURITY: Remove the password from the response
+    const { password, ...userWithoutPassword } = user;
 
     return {
-      statusCode: 200,
-      message: 'User signed in successfully',
-      user: foundUser,
+      user: userWithoutPassword,
+      role,
       access_token: this.jwtService.sign(payload),
     };
   }
@@ -86,7 +86,7 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
-    const foundUser = await this.userService.findByEmail(email);
+    const { user: foundUser } = await this.userService.findByEmail(email);
 
     if (foundUser) {
       const resetPasswordToken = nanoid(64);
