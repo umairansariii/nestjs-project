@@ -29,7 +29,12 @@ export class AuthService {
   ) {}
 
   async signup(signupDto: SignupDto) {
-    return this.userService.create(signupDto);
+    const data = await this.userService.create(signupDto);
+
+    // EMAIL: Send welcome greeting email
+    this.mailService.sendSignupEmail(data.user.email, data.user.firstName);
+
+    return data;
   }
 
   async signin(signinDto: SigninDto) {
