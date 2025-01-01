@@ -28,13 +28,22 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
+  /**
+   * Registers a new user in the system.
+   */
   async signup(signupDto: SignupDto) {
-    const data = await this.userService.create(signupDto);
+    const { user, role } = await this.userService.create(signupDto);
 
     // EMAIL: Send welcome greeting email
-    this.mailService.sendSignupEmail(data.user.email, data.user.firstName);
+    this.mailService.sendSignupEmail(user.email, user.firstName);
 
-    return data;
+    const payload = { sub: user.id, email: user.email };
+
+    return {
+      user,
+      role,
+      access_token: this.jwtService.sign(payload),
+    };
   }
 
   /**
