@@ -59,13 +59,9 @@ export class UserService {
     const newUser = await this.userRepository.save(user);
 
     // SECURITY: Remove the password from the response
-    delete newUser.password;
-    delete newUser.role;
+    const { password, role, ...userWithoutPassword } = newUser;
 
-    return {
-      user: newUser,
-      role: foundRole,
-    };
+    return { user: userWithoutPassword, role };
   }
 
   async updatePassword(user: User, newPassword: string) {
