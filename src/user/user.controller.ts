@@ -9,13 +9,15 @@ export class UserController {
 
   @Get()
   async findById(@Request() req: any) {
-    const user = await this.userService.findById(req.userId);
-    delete user.password;
+    const { user, role } = await this.userService.findById(req.userId);
+
+    // SECURITY: Remove password from the response
+    const { password, ...userWithoutPassword } = user;
 
     return {
       statusCode: 200,
       message: 'User retrieved successfully',
-      user,
+      data: { user: userWithoutPassword, role },
     };
   }
 }

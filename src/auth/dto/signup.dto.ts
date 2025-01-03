@@ -2,6 +2,7 @@ import {
   IsAlpha,
   IsDefined,
   IsEmail,
+  IsInt,
   IsNotEmpty,
   IsString,
   Matches,
@@ -37,4 +38,8 @@ export class SignupDto {
   @IsString({ message: 'Password must be a string' })
   @IsDefined({ message: 'Password is required' })
   password: string;
+
+  @IsInt({ message: 'Role identity must be an integer' })
+  @IsDefined({ message: 'Role identity is required' })
+  roleId: number;
 }

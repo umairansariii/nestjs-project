@@ -22,13 +22,25 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() signupDto: SignupDto) {
-    return this.authService.signup(signupDto);
+    const data = await this.authService.signup(signupDto);
+
+    return {
+      statusCode: 201,
+      message: 'User signed up successfully',
+      data,
+    };
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('signin')
   async signin(@Body() signinDto: SigninDto) {
-    return this.authService.signin(signinDto);
+    const data = await this.authService.signin(signinDto);
+
+    return {
+      statusCode: 200,
+      message: 'User signed in successfully',
+      data,
+    };
   }
 
   @UseGuards(AuthGuard)
@@ -37,16 +49,32 @@ export class AuthController {
     @Body() changePasswordDto: ChangePasswordDto,
     @Request() req: any,
   ) {
-    return this.authService.changePassword(changePasswordDto, req.userId);
+    await this.authService.changePassword(changePasswordDto, req.userId);
+
+    return {
+      statusCode: 200,
+      message: 'Password changed successfully',
+    };
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(forgotPasswordDto.email);
+    await this.authService.forgotPassword(forgotPasswordDto.email);
+
+    return {
+      statusCode: 200,
+      message: 'Reset password email sent successfully',
+    };
   }
 
   @Put('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(resetPasswordDto);
+    await this.authService.resetPassword(resetPasswordDto);
+
+    return {
+      statusCode: 200,
+      message: 'Password updated successfully',
+    };
   }
 }
