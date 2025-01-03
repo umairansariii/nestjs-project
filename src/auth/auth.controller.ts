@@ -49,7 +49,12 @@ export class AuthController {
     @Body() changePasswordDto: ChangePasswordDto,
     @Request() req: any,
   ) {
-    return this.authService.changePassword(changePasswordDto, req.userId);
+    await this.authService.changePassword(changePasswordDto, req.userId);
+
+    return {
+      statusCode: 200,
+      message: 'Password changed successfully',
+    };
   }
 
   @Post('forgot-password')

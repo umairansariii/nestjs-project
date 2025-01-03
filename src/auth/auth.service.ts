@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
@@ -74,9 +73,13 @@ export class AuthService {
     };
   }
 
+  /**
+   * Changes the password of a user.
+   */
   async changePassword(changePasswordDto: ChangePasswordDto, userId: number) {
-    const user = await this.userService.findById(userId);
+    const { user } = await this.userService.findById(userId);
 
+    // CHECK: If the password matches the current password
     const isPasswordMatch = await bcrypt.compare(
       changePasswordDto.oldPassword,
       user.password,
@@ -86,12 +89,7 @@ export class AuthService {
       throw new BadRequestException('Password does not match');
     }
 
-    await this.userService.updatePassword(user, changePasswordDto.newPassword);
-
-    return {
-      statusCode: 200,
-      message: 'Password changed successfully',
-    };
+    return this.userService.updatePassword(user, changePasswordDto.newPassword);
   }
 
   async forgotPassword(email: string) {

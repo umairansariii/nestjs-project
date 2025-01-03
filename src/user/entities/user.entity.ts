@@ -42,7 +42,7 @@ export class User {
   roleId: number;
 
   @ManyToOne(() => Role, (role) => role.users)
-  role: Role;
+  role?: Role;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

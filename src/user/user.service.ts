@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,7 +18,6 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-    private readonly entityManager: EntityManager,
   ) {}
 
   /**
@@ -64,12 +63,19 @@ export class UserService {
     return { user: userWithoutPassword, role };
   }
 
+  /**
+   * Updates the password of a given user by hashing the new password and saving it to the database.
+   *
+   * @warning This function does not remove the password from the response.
+   */
   async updatePassword(user: User, newPassword: string) {
+    // SECURITY: Hash the password before saving it to the database
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    user.password = hashedPassword;
+    const updatedUser = new User({ ...user, password: hashedPassword });
 
-    return this.entityManager.save(user);
+    // WARNING: This function does not remove the password from the response
+    return this.userRepository.save(updatedUser);
   }
 
   /**
@@ -97,7 +103,28 @@ export class UserService {
     return { user, role };
   }
 
+  /**
+   * Finds a user by identity.
+   *
+   * This function checks if a user with the specified identity exists in the
+   * system, and if not, throws a `NotFoundException`.
+   *
+   * @warning This function does not remove the password from the response.
+   */
   async findById(id: number) {
-    return this.userRepository.findOne({ where: { id } });
+    // CHECK: If a user with this identity exists
+    const foundUser = await this.userRepository.findOne({
+      where: { id },
+      relations: ['role'],
+    });
+
+    if (!foundUser) {
+      throw new NotFoundException('User with this identity does not exist');
+    }
+
+    const { role, ...user } = foundUser;
+
+    // WARNING: This function does not remove the password from the response
+    return { user, role };
   }
 }
