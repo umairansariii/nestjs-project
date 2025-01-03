@@ -114,7 +114,11 @@ export class AuthService {
     }
   }
 
+  /**
+   * Resets the password of a user.
+   */
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    // CHECK: If the token is valid and not expired
     const foundToken = await this.resetTokenRepository.findOne({
       where: {
         token: resetPasswordDto.resetToken,
@@ -126,14 +130,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    const user = await this.userService.findById(foundToken.userId);
+    const { user } = await this.userService.findById(foundToken.userId);
 
     await this.userService.updatePassword(user, resetPasswordDto.newPassword);
-    await this.resetTokenRepository.delete(foundToken.userId);
 
-    return {
-      statusCode: 200,
-      message: 'Password updated successfully',
-    };
+    return this.resetTokenRepository.delete(foundToken.userId);
   }
 }

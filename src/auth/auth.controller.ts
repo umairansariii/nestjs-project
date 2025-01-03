@@ -70,6 +70,11 @@ export class AuthController {
 
   @Put('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(resetPasswordDto);
+    await this.authService.resetPassword(resetPasswordDto);
+
+    return {
+      statusCode: 200,
+      message: 'Password updated successfully',
+    };
   }
 }
