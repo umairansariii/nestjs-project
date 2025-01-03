@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { nanoid } from 'nanoid';
 import { ResetToken } from './entities/reset-token.entity';
-import { EntityManager, MoreThan, Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { MailService } from 'src/services/mail.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,7 +22,6 @@ export class AuthService {
     @InjectRepository(ResetToken)
     private readonly resetTokenRepository: Repository<ResetToken>,
     private readonly userService: UserService,
-    private readonly entityManager: EntityManager,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
@@ -92,26 +91,27 @@ export class AuthService {
     return this.userService.updatePassword(user, changePasswordDto.newPassword);
   }
 
+  /**
+   * Sends a password reset email to the user.
+   */
   async forgotPassword(email: string) {
-    const { user: foundUser } = await this.userService.findByEmail(email);
+    const { user } = await this.userService.findByEmail(email);
 
-    if (foundUser) {
+    // CHECK: If the user exists
+    if (user) {
       const resetPasswordToken = nanoid(64);
 
       const resetToken = new ResetToken({
-        userId: foundUser.id,
+        userId: user.id,
         token: resetPasswordToken,
         expiryDate: new Date(Date.now() + 3600000),
       });
 
-      await this.entityManager.save(resetToken);
+      // EMAIL: Send password reset email
       this.mailService.sendPasswordResetEmail(email, resetPasswordToken);
-    }
 
-    return {
-      statusCode: 200,
-      message: 'Email sent successfully',
-    };
+      return this.resetTokenRepository.save(resetToken);
+    }
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
