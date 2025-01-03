@@ -64,7 +64,10 @@ export class UserService {
   }
 
   /**
-   * Updates the password of a given user by hashing the new password and saving it to the database.
+   * Updates the password of a given user.
+   *
+   * This function hashes the new password and updates the user's password
+   * in the database.
    *
    * @warning This function does not remove the password from the response.
    */
