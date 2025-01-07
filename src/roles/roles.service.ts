@@ -23,6 +23,7 @@ export class RolesService {
    * provided `createRoleDto` and saves it to the repository.
    */
   async create(createRoleDto: CreateRoleDto) {
+    // CHECK: If the role with the same name already exists
     const foundRole = await this.roleRepository.findOne({
       where: { name: createRoleDto.name },
     });
@@ -35,13 +36,16 @@ export class RolesService {
       ...createRoleDto,
     });
 
-    return this.roleRepository.save(role);
+    const newRole = await this.roleRepository.save(role);
+
+    return { role: newRole };
   }
 
   /**
    * Retrieves role by id, including its associated permissions.
    */
   async findOne(id: number) {
+    // CHECK: If the role with this identity exists
     const foundRole = await this.roleRepository.findOne({
       where: { id },
       relations: ['permissions'],
@@ -51,7 +55,9 @@ export class RolesService {
       throw new NotFoundException(`Role does not exist`);
     }
 
-    return foundRole;
+    const { permissions, ...role } = foundRole;
+
+    return { role, permissions };
   }
 
   /**

@@ -13,29 +13,29 @@ export class RolesController {
     return {
       statusCode: 200,
       message: 'Roles retrieved successfully',
-      roles,
+      data: { roles },
     };
   }
 
   @Get(':id')
   async getRole(@Param('id') id: number) {
-    const role = await this.rolesService.findOne(id);
+    const data = await this.rolesService.findOne(id);
 
     return {
       statusCode: 200,
       message: 'Role retrieved successfully',
-      role,
+      data,
     };
   }
 
   @Post()
   async createRole(@Body() createRoleDto: CreateRoleDto) {
-    const role = await this.rolesService.create(createRoleDto);
+    const data = await this.rolesService.create(createRoleDto);
 
     return {
       statusCode: 201,
       message: 'Role created successfully',
-      role,
+      data,
     };
   }
 }
