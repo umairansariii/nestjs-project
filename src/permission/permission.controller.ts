@@ -14,30 +14,29 @@ export class PermissionController {
     return {
       statusCode: 200,
       message: 'Permissions retrieved successfully',
-      permissions,
+      data: { permissions },
     };
   }
 
   @Post()
   async createPermission(@Body() createPermissionDto: CreatePermissionDto) {
-    const permissions =
-      await this.permissionService.create(createPermissionDto);
+    const data = await this.permissionService.create(createPermissionDto);
 
     return {
       statusCode: 201,
-      message: 'Permission created successfully',
-      permissions,
+      message: 'Permissions created successfully',
+      data,
     };
   }
 
   @Put('assign')
   async assignPermission(@Body() assignPermissionDto: AssignPermissionDto) {
-    const role = await this.permissionService.assign(assignPermissionDto);
+    const data = await this.permissionService.assign(assignPermissionDto);
 
     return {
       statusCode: 200,
-      message: 'Permission assigned successfully',
-      role,
+      message: 'Permissions assigned successfully',
+      data,
     };
   }
 }

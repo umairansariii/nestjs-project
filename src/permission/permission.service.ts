@@ -27,6 +27,7 @@ export class PermissionService {
    * Otherwise, it creates new permissions and saves them to the repository.
    */
   async create(createPermissionDto: CreatePermissionDto) {
+    // CHECK: If permissions already exist for the given resource and actions
     const foundPermissions = await this.permissionRepository.find({
       where: {
         resource: createPermissionDto.resource,
@@ -48,7 +49,9 @@ export class PermissionService {
         }),
     );
 
-    return this.permissionRepository.save(permissions);
+    const newPermissions = await this.permissionRepository.save(permissions);
+
+    return { permissions: newPermissions };
   }
 
   /**
@@ -59,6 +62,7 @@ export class PermissionService {
    * It ensures that only unique permissions are added to the role.
    */
   async assign(assignPermissionDto: AssignPermissionDto) {
+    // CHECK: If the role exists
     const foundRole = await this.roleRepository.findOne({
       where: { id: assignPermissionDto.roleId },
       relations: ['permissions'],
@@ -68,6 +72,7 @@ export class PermissionService {
       throw new NotFoundException('Role does not exist');
     }
 
+    // CHECK: If all permissions exist in the system
     const foundPermissions = await this.permissionRepository.find({
       where: { id: In(assignPermissionDto.permissionIds) },
     });
@@ -76,6 +81,7 @@ export class PermissionService {
       throw new NotFoundException("Some permissions don't exist");
     }
 
+    // FILTER: Unique permissions
     const uniquePermissions = foundPermissions.filter(
       (permission) =>
         !foundRole.permissions.some((p) => p.id === permission.id),
@@ -83,7 +89,11 @@ export class PermissionService {
 
     foundRole.permissions = [...foundRole.permissions, ...uniquePermissions];
 
-    return this.roleRepository.save(foundRole);
+    const updatedRole = await this.roleRepository.save(foundRole);
+
+    const { permissions, ...role } = updatedRole;
+
+    return { role, permissions: uniquePermissions };
   }
 
   /**
