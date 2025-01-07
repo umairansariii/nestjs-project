@@ -5,6 +5,9 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesModule } from './roles/roles.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { PermissionModule } from './permission/permission.module';
 
 @Module({
   imports: [
@@ -22,8 +25,9 @@ import { RolesModule } from './roles/roles.module';
     AuthModule,
     UserModule,
     RolesModule,
+    PermissionModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
