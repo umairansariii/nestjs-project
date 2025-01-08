@@ -5,10 +5,12 @@ import { UserModule } from 'src/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResetToken } from './entities/reset-token.entity';
 import { MailService } from 'src/services/mail.service';
+import { RolesModule } from 'src/roles/roles.module';
 
 @Module({
-  imports: [UserModule, TypeOrmModule.forFeature([ResetToken])],
+  imports: [UserModule, RolesModule, TypeOrmModule.forFeature([ResetToken])],
   controllers: [AuthController],
   providers: [AuthService, MailService],
+  exports: [AuthService],
 })
 export class AuthModule {}

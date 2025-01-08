@@ -15,6 +15,7 @@ import { MoreThan, Repository } from 'typeorm';
 import { MailService } from 'src/services/mail.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     @InjectRepository(ResetToken)
     private readonly resetTokenRepository: Repository<ResetToken>,
     private readonly userService: UserService,
+    private readonly rolesService: RolesService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
@@ -135,5 +137,15 @@ export class AuthService {
     await this.userService.updatePassword(user, resetPasswordDto.newPassword);
 
     return this.resetTokenRepository.delete(foundToken.userId);
+  }
+
+  /**
+   * Retrieves the permissions of a user.
+   */
+  async getUserPermissions(userId: number) {
+    const { user } = await this.userService.findById(userId);
+    const { permissions } = await this.rolesService.findOne(user.roleId);
+
+    return permissions;
   }
 }
