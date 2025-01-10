@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -139,14 +139,33 @@ export class UserService {
    * and if not, throws a `ForbiddenException`.
    *
    * @pagination This function accepts `page` and `limit` query parameters.
+   * @filtraion This function accepts `roleId`, `firstName`, `lastName`, `email`, and `isActive` query parameters.
    */
-  async findAll(userId: number, page: number, limit: number) {
+  async findAll(
+    userId: number,
+    page: number,
+    limit: number,
+    roleId?: string,
+    firstName?: string,
+    lastName?: string,
+    email?: string,
+    isActive?: string,
+  ) {
     // CHECK: If user has privileges to access this resource
     const { role } = await this.findById(userId);
 
     if (!['Master', 'Admin'].includes(role.name)) {
       throw new ForbiddenException('Access denied');
     }
+
+    // QUERY: Builing query parameters
+    const where: any = {};
+
+    if (roleId) where.roleId = parseInt(roleId, 10);
+    if (firstName) where.firstName = ILike(`%${firstName}%`);
+    if (lastName) where.lastName = ILike(`%${lastName}%`);
+    if (email) where.email = ILike(`%${email}%`);
+    if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const [users, total] = await this.userRepository.findAndCount({
       select: [
@@ -159,7 +178,8 @@ export class UserService {
         'isActive',
         'roleId',
       ],
-      skip: (page - 1) * limit,
+      where,
+      skip: page > 0 ? (page - 1) * limit : 0,
       take: limit,
     });
 
