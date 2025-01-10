@@ -26,11 +26,21 @@ export class UserController {
     @Request() req: any,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
+    @Query('roleId') roleId?: string,
+    @Query('firstName') firstName?: string,
+    @Query('lastName') lastName?: string,
+    @Query('email') email?: string,
+    @Query('isActive') isActive?: string,
   ) {
     const data = await this.userService.findAll(
       req.userId,
       parseInt(page, 10),
       parseInt(limit, 10),
+      roleId,
+      firstName,
+      lastName,
+      email,
+      isActive,
     );
 
     return {
