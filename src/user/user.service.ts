@@ -140,7 +140,7 @@ export class UserService {
    *
    * @pagination This function accepts `page` and `limit` query parameters.
    */
-  async findAll(userId: number, page = 1, limit = 10) {
+  async findAll(userId: number, page: number, limit: number) {
     // CHECK: If user has privileges to access this resource
     const { role } = await this.findById(userId);
 
