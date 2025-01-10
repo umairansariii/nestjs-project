@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -129,5 +130,41 @@ export class UserService {
 
     // WARNING: This function does not remove the password from the response
     return { user, role };
+  }
+
+  /**
+   * Finds all users in the system.
+   *
+   * This function checks if the user has privileges to access this resource,
+   * and if not, throws a `ForbiddenException`.
+   *
+   * @pagination This function accepts `page` and `limit` query parameters.
+   */
+  async findAll(userId: number, page: number, limit: number) {
+    // CHECK: If user has privileges to access this resource
+    const { role } = await this.findById(userId);
+
+    if (!['Master', 'Admin'].includes(role.name)) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    const [users, total] = await this.userRepository.findAndCount({
+      select: [
+        'id',
+        'createdAt',
+        'deletedAt',
+        'firstName',
+        'lastName',
+        'email',
+        'isActive',
+        'roleId',
+      ],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const meta = { page, limit, total, pageCount: Math.ceil(total / limit) };
+
+    return { users, meta };
   }
 }

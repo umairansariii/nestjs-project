@@ -1,4 +1,4 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/guard/auth.guard';
 
@@ -18,6 +18,25 @@ export class UserController {
       statusCode: 200,
       message: 'User retrieved successfully',
       data: { user: userWithoutPassword, role },
+    };
+  }
+
+  @Get('all')
+  async findAll(
+    @Request() req: any,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+  ) {
+    const data = await this.userService.findAll(
+      req.userId,
+      parseInt(page, 10),
+      parseInt(limit, 10),
+    );
+
+    return {
+      statusCode: 200,
+      message: 'Users retrieved successfully',
+      data,
     };
   }
 }
